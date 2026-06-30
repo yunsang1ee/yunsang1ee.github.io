@@ -42,6 +42,15 @@ export function getAllTags(posts: PostEntry[]) {
   return [...new Set(tags)].sort((a, b) => a.localeCompare(b));
 }
 
+export function getTagCounts(posts: PostEntry[]) {
+  return Object.fromEntries(
+    getAllTags(posts).map((tag) => [
+      tag,
+      posts.filter((post) => post.data.tags.includes(tag)).length
+    ])
+  );
+}
+
 export function getCategoryCounts(posts: PostEntry[]) {
   return Object.fromEntries(
     categories.map((category) => [

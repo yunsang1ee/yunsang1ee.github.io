@@ -9,14 +9,15 @@ interface Props {
 
 const { project, compact = false } = Astro.props;
 const { data } = project;
+const href = withBase(projectHref(project));
 ---
 
-<article class:list={["content-card", "project-card", compact && "project-card--compact"]}>
+<article class:list={["content-card", "project-card", compact && "project-card--compact"]} data-card-link={href}>
   <div class="content-card__meta">
     <span>{data.period}</span>
     <span>{data.status}</span>
   </div>
-  <h3><a href={withBase(projectHref(project))}>{data.title}</a></h3>
+  <h3><a href={href}>{data.title}</a></h3>
   <p class="project-card__role">{data.role}</p>
   {!compact && <p>{data.description}</p>}
   <ul class="tag-list" aria-label={`${data.title} stack`}>
@@ -29,4 +30,5 @@ const { data } = project;
       ))}
     </div>
   )}
+  <a class="card-open" href={href} aria-label={`Open ${data.title}`}>Open <span aria-hidden="true">-></span></a>
 </article>

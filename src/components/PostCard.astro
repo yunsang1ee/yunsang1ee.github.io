@@ -10,14 +10,15 @@ interface Props {
 
 const { post, compact = false } = Astro.props;
 const category = categoryBySlug[post.data.category as keyof typeof categoryBySlug];
+const href = withBase(postHref(post));
 ---
 
-<article class:list={["content-card", "post-card", compact && "post-card--compact"]}>
+<article class:list={["content-card", "post-card", compact && "post-card--compact"]} data-card-link={href}>
   <div class="content-card__meta">
     <a href={withBase(`/categories/${post.data.category}/`)}>{category?.title ?? post.data.category}</a>
     <span>{formatDate(post.data.pubDate)}</span>
   </div>
-  <h3><a href={withBase(postHref(post))}>{post.data.title}</a></h3>
+  <h3><a href={href}>{post.data.title}</a></h3>
   {!compact && <p>{post.data.description}</p>}
   {post.data.tags.length > 0 && (
     <ul class="tag-list" aria-label={`${post.data.title} tags`}>
@@ -26,4 +27,5 @@ const category = categoryBySlug[post.data.category as keyof typeof categoryBySlu
       ))}
     </ul>
   )}
+  <a class="card-open" href={href} aria-label={`Open ${post.data.title}`}>Open <span aria-hidden="true">-></span></a>
 </article>

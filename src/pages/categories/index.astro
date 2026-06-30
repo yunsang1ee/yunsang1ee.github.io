@@ -1,0 +1,40 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { categories } from "../../data/site";
+import { getCategoryCounts, getPublishedPosts, withBase } from "../../lib/content";
+
+const posts = await getPublishedPosts();
+const categoryCounts = getCategoryCounts(posts);
+---
+
+<BaseLayout title="Categories" description="Behind the Frame category index">
+  <section class="shell page-head">
+    <p class="eyebrow">Topics</p>
+    <h1>Categories</h1>
+    <p>
+      글을 큰 학습/작업 영역 단위로 나누어 보는 입구입니다. category는 장기적인 knowledge map에 가깝고,
+      tag는 더 작은 구현 주제와 키워드에 가깝습니다.
+    </p>
+    <nav class="index-switch" aria-label="Topic index">
+      <a href={withBase("/categories/")} aria-current="page">Categories</a>
+      <a href={withBase("/tags/")}>Tags</a>
+    </nav>
+  </section>
+
+  <section class="shell section-block">
+    <div class="category-map">
+      {categories.map((category) => (
+        <a class="content-card category-card topic-index-card" data-accent={category.accent} href={withBase(`/categories/${category.slug}/`)}>
+          <div class="topic-index-card__head">
+            <h2>{category.title}</h2>
+            <span class="topic-index-card__count">{categoryCounts[category.slug] ?? 0} notes</span>
+          </div>
+          <p>{category.summary}</p>
+          <ul class="tag-list">
+            {category.topics.map((topic) => <li>{topic}</li>)}
+          </ul>
+        </a>
+      ))}
+    </div>
+  </section>
+</BaseLayout>

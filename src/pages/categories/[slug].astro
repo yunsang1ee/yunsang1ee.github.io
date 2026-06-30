@@ -2,7 +2,7 @@
 import PostCard from "../../components/PostCard.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
 import { categories } from "../../data/site";
-import { getPublishedPosts } from "../../lib/content";
+import { getPublishedPosts, withBase } from "../../lib/content";
 
 export async function getStaticPaths() {
   const posts = await getPublishedPosts();
@@ -24,6 +24,10 @@ const { category, posts } = Astro.props;
     <p class="eyebrow">Category</p>
     <h1>{category.title}</h1>
     <p>{category.summary}</p>
+    <nav class="index-switch" aria-label="Topic index">
+      <a href={withBase("/categories/")} aria-current="page">Categories</a>
+      <a href={withBase("/tags/")}>Tags</a>
+    </nav>
   </section>
 
   <section class="shell listing-shell">

@@ -12,6 +12,7 @@ export const site = {
 export const navItems = [
   { label: "Home", href: "/" },
   { label: "Blog", href: "/blog/" },
+  { label: "Topics", href: "/categories/" },
   { label: "Projects", href: "/projects/" },
   { label: "Series", href: "/series/blog-start/" },
   { label: "About", href: "/about/" }

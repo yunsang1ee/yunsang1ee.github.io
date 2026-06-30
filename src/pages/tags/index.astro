@@ -1,0 +1,38 @@
+---
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getAllTags, getPublishedPosts, getTagCounts, tagSlug, withBase } from "../../lib/content";
+
+const posts = await getPublishedPosts();
+const tags = getAllTags(posts);
+const tagCounts = getTagCounts(posts);
+---
+
+<BaseLayout title="Tags" description="Behind the Frame tag index">
+  <section class="shell page-head">
+    <p class="eyebrow">Topics</p>
+    <h1>Tags</h1>
+    <p>
+      tag는 글을 작은 구현 주제, 도구, 개념 단위로 다시 찾기 위한 색인입니다.
+      특정 기술 키워드로 관련 기록을 빠르게 모아볼 때 사용합니다.
+    </p>
+    <nav class="index-switch" aria-label="Topic index">
+      <a href={withBase("/categories/")}>Categories</a>
+      <a href={withBase("/tags/")} aria-current="page">Tags</a>
+    </nav>
+  </section>
+
+  <section class="shell section-block">
+    {tags.length > 0 ? (
+      <div class="tag-index-grid">
+        {tags.map((tag) => (
+          <a class="tag-index-item" href={withBase(`/tags/${tagSlug(tag)}/`)}>
+            <span>{tag}</span>
+            <strong>{tagCounts[tag] ?? 0}</strong>
+          </a>
+        ))}
+      </div>
+    ) : (
+      <p>아직 등록된 tag가 없습니다.</p>
+    )}
+  </section>
+</BaseLayout>

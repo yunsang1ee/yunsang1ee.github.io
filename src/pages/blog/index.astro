@@ -18,6 +18,10 @@ const years = [...new Set(posts.map((post) => post.data.pubDate.getFullYear()))]
       graphics, engine architecture, AI for Graphics, CS fundamentals를 장기적으로 축적하는 archive입니다.
       글은 Markdown으로 작성하고, category / tag / series metadata로 정리합니다.
     </p>
+    <div class="hero-links" aria-label="Blog index links">
+      <a href={withBase("/categories/")}>Browse categories <span aria-hidden="true">-></span></a>
+      <a href={withBase("/tags/")}>Browse tags <span aria-hidden="true">-></span></a>
+    </div>
   </section>
 
   <section class="shell listing-shell">

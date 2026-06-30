@@ -5,22 +5,20 @@ import BaseLayout from "../layouts/BaseLayout.astro";
 import { categories, site } from "../data/site";
 import {
   getAllProjects,
-  getAllTags,
   getCategoryCounts,
   getPublishedPosts,
   getSeriesGroups,
-  tagSlug,
   withBase
 } from "../lib/content";
 
 const posts = await getPublishedPosts();
 const projects = await getAllProjects();
 const categoryCounts = getCategoryCounts(posts);
-const tags = getAllTags(posts);
 const seriesGroups = getSeriesGroups(posts);
 const pinnedPosts = posts.filter((post) => post.data.pinned || post.data.featured);
 const recentPosts = posts.slice(0, 6);
 const featuredProjects = projects.filter((project) => project.data.featured).slice(0, 3);
+const projectStacks = [...new Set(featuredProjects.flatMap((project) => project.data.stack))].slice(0, 10);
 ---
 
 <BaseLayout>
@@ -34,17 +32,23 @@ const featuredProjects = projects.filter((project) => project.data.featured).sli
         Real-Time & Photorealistic Graphics를 중심으로 rendering pipeline, engine architecture, GPU work,
         AI for Graphics를 기록합니다. 화면에 보이는 결과 뒤편의 구조와 판단을 남기는 기술 블로그입니다.
       </p>
+      <div class="hero-links" aria-label="Primary actions">
+        <a href={withBase("/blog/")}>Read notes <span aria-hidden="true">-></span></a>
+        <a href={withBase("/projects/")}>View projects <span aria-hidden="true">-></span></a>
+      </div>
     </div>
 
     <a class="hero-showcase" href={withBase("/projects/eisenvalor/")} aria-label="EisenValor project">
-      <img
-        src={withBase("/images/showcase/eisenvalor-current.png")}
-        alt="EisenValor gameplay screenshot"
-        width="1896"
-        height="1006"
-        loading="eager"
-        decoding="async"
-      />
+      <div class="hero-showcase__media">
+        <img
+          src={withBase("/images/showcase/eisenvalor-current.png")}
+          alt="EisenValor gameplay screenshot"
+          width="1896"
+          height="1006"
+          loading="eager"
+          decoding="async"
+        />
+      </div>
       <div class="hero-showcase__caption">
         <div>
           <p class="rail-kicker">Current Focus</p>
@@ -55,139 +59,173 @@ const featuredProjects = projects.filter((project) => project.data.featured).sli
     </a>
   </section>
 
-  <section class="shell knowledge-shell" aria-label="Knowledge base overview">
-    <aside class="left-rail">
-      <div class="rail-panel">
-        <p class="rail-kicker">Categories</p>
-        <h2>Knowledge Map</h2>
-        <ul class="rail-list">
-          {categories.map((category) => (
-            <li>
-              <a href={withBase(`/categories/${category.slug}/`)}>
-                <span>{category.title}</span>
-                <strong>{categoryCounts[category.slug] ?? 0}</strong>
-              </a>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      <div class="rail-panel">
-        <p class="rail-kicker">Series</p>
-        <h2>Writing Tracks</h2>
-        <ul class="rail-list">
-          {seriesGroups.length > 0 ? (
-            seriesGroups.map((series) => (
-              <li>
-                <a href={withBase(`/series/${series.slug}/`)}>
-                  <span>{series.title}</span>
-                  <strong>{series.posts.length}</strong>
-                </a>
-              </li>
-            ))
-          ) : (
-            <li><span>시리즈를 준비 중입니다.</span></li>
-          )}
-        </ul>
-      </div>
-    </aside>
-
-    <div class="home-tabs">
+  <section class="shell home-dashboard" aria-label="Knowledge base overview">
+    <div class="home-state">
       <input id="home-tab-notes" name="home-tabs" type="radio" checked />
       <input id="home-tab-projects" name="home-tabs" type="radio" />
       <input id="home-tab-topics" name="home-tabs" type="radio" />
 
-      <div class="home-tab-list" role="tablist" aria-label="Home sections">
-        <label for="home-tab-notes" role="tab">Notes</label>
-        <label for="home-tab-projects" role="tab">Projects</label>
-        <label for="home-tab-topics" role="tab">Topics</label>
-      </div>
-
-      <div class="home-tab-panels">
-        <section class="home-tab-panel" data-panel="notes">
-          <div class="section-block">
-            <div class="section-block__head">
-              <div>
-                <p class="eyebrow">Pinned</p>
-                <h2>Start Here</h2>
-              </div>
-              <a class="text-link" href={withBase("/blog/")}>All posts</a>
-            </div>
-            <div class="content-grid">
-              {pinnedPosts.length > 0 ? pinnedPosts.map((post) => <PostCard post={post} />) : <p>고정된 글이 없습니다.</p>}
-            </div>
-          </div>
-
-          <div class="section-block">
-            <div class="section-block__head">
-              <div>
-                <p class="eyebrow">Recent Posts</p>
-                <h2>Notes</h2>
-              </div>
-            </div>
-            <div class="content-grid">
-              {recentPosts.map((post) => <PostCard post={post} compact />)}
-            </div>
-          </div>
-        </section>
-
-        <section class="home-tab-panel" data-panel="projects">
-          <div class="section-block">
-            <div class="section-block__head">
-              <div>
-                <p class="eyebrow">Selected Work</p>
-                <h2>Projects</h2>
-              </div>
-              <a class="text-link" href={withBase("/projects/")}>All projects</a>
-            </div>
-            <div class="project-grid">
-              {featuredProjects.map((project) => <ProjectCard project={project} />)}
-            </div>
-          </div>
-        </section>
-
-        <section class="home-tab-panel" data-panel="topics">
-          <div class="section-block">
-            <div class="section-block__head">
-              <div>
-                <p class="eyebrow">Map</p>
-                <h2>Topics</h2>
-              </div>
-            </div>
-            <div class="category-map">
+      <aside class="left-rail home-rail">
+        <div class="home-rail-panel" data-rail="notes">
+          <div class="rail-panel">
+            <p class="rail-kicker">Categories</p>
+            <h2>Knowledge Map</h2>
+            <ul class="rail-list">
               {categories.map((category) => (
-                <a class="content-card category-card" data-accent={category.accent} href={withBase(`/categories/${category.slug}/`)}>
-                  <h3>{category.title}</h3>
-                  <p>{category.summary}</p>
-                  <ul class="tag-list">
-                    {category.topics.slice(0, 4).map((topic) => <li>{topic}</li>)}
-                  </ul>
-                </a>
+                <li>
+                  <a href={withBase(`/categories/${category.slug}/`)}>
+                    <span>{category.title}</span>
+                    <strong>{categoryCounts[category.slug] ?? 0}</strong>
+                  </a>
+                </li>
               ))}
-            </div>
+            </ul>
           </div>
-        </section>
+
+          <div class="rail-panel">
+            <p class="rail-kicker">Series</p>
+            <h2>Writing Tracks</h2>
+            <ul class="rail-list">
+              {seriesGroups.length > 0 ? (
+                seriesGroups.map((series) => (
+                  <li>
+                    <a href={withBase(`/series/${series.slug}/`)}>
+                      <span>{series.title}</span>
+                      <strong>{series.posts.length}</strong>
+                    </a>
+                  </li>
+                ))
+              ) : (
+                <li><span>시리즈를 준비 중입니다.</span></li>
+              )}
+            </ul>
+          </div>
+        </div>
+
+        <div class="home-rail-panel" data-rail="projects">
+          <div class="rail-panel">
+            <p class="rail-kicker">Project Scope</p>
+            <h2>Selected Work</h2>
+            <ul class="rail-list">
+              {featuredProjects.map((project) => (
+                <li>
+                  <a href={withBase(`/projects/${project.id}/`)}>
+                    <span>{project.data.title}</span>
+                    <strong>{project.data.status}</strong>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div class="rail-panel">
+            <p class="rail-kicker">Stack</p>
+            <h2>Rendering Runtime</h2>
+            <ul class="tag-list">
+              {projectStacks.map((stack) => <li>{stack}</li>)}
+            </ul>
+          </div>
+        </div>
+
+        <div class="home-rail-panel" data-rail="topics">
+          <div class="rail-panel">
+            <p class="rail-kicker">Topic Groups</p>
+            <h2>Browse Areas</h2>
+            <ul class="rail-list">
+              {categories.map((category) => (
+                <li>
+                  <a href={withBase(`/categories/${category.slug}/`)}>
+                    <span>{category.title}</span>
+                    <strong>{categoryCounts[category.slug] ?? 0}</strong>
+                  </a>
+                </li>
+              ))}
+            </ul>
+          </div>
+
+          <div class="rail-panel">
+            <p class="rail-kicker">Positioning</p>
+            <h2>Graphics AI Engineer</h2>
+            <p style="margin-top: 10px;">
+              범용 AI 서비스보다 graphics를 더 사실적으로 만들고 rendering pipeline을 확장하는 AI 활용에 관심이 있습니다.
+            </p>
+          </div>
+        </div>
+      </aside>
+
+      <div class="home-tabs">
+        <div class="home-tab-list" aria-label="Home section selector">
+          <label for="home-tab-notes">Notes</label>
+          <label for="home-tab-projects">Projects</label>
+          <label for="home-tab-topics">Topics</label>
+        </div>
+
+        <div class="home-tab-panels">
+          <section class="home-tab-panel" data-panel="notes">
+            <div class="section-block">
+              <div class="section-block__head">
+                <div>
+                  <p class="eyebrow">Pinned</p>
+                  <h2>Start Here</h2>
+                </div>
+                <a class="text-link" href={withBase("/blog/")}>All posts</a>
+              </div>
+              <div class="content-grid">
+                {pinnedPosts.length > 0 ? pinnedPosts.map((post) => <PostCard post={post} />) : <p>고정된 글이 없습니다.</p>}
+              </div>
+            </div>
+
+            <div class="section-block">
+              <div class="section-block__head">
+                <div>
+                  <p class="eyebrow">Recent Posts</p>
+                  <h2>Notes</h2>
+                </div>
+              </div>
+              <div class="content-grid">
+                {recentPosts.map((post) => <PostCard post={post} compact />)}
+              </div>
+            </div>
+          </section>
+
+          <section class="home-tab-panel" data-panel="projects">
+            <div class="section-block">
+              <div class="section-block__head">
+                <div>
+                  <p class="eyebrow">Selected Work</p>
+                  <h2>Projects</h2>
+                </div>
+                <a class="text-link" href={withBase("/projects/")}>All projects</a>
+              </div>
+              <div class="project-grid">
+                {featuredProjects.map((project) => <ProjectCard project={project} />)}
+              </div>
+            </div>
+          </section>
+
+          <section class="home-tab-panel" data-panel="topics">
+            <div class="section-block">
+              <div class="section-block__head">
+                <div>
+                  <p class="eyebrow">Map</p>
+                  <h2>Topics</h2>
+                </div>
+              </div>
+              <div class="category-map">
+                {categories.map((category) => (
+                  <a class="content-card category-card" data-accent={category.accent} href={withBase(`/categories/${category.slug}/`)}>
+                    <h3>{category.title}</h3>
+                    <p>{category.summary}</p>
+                    <ul class="tag-list">
+                      {category.topics.slice(0, 4).map((topic) => <li>{topic}</li>)}
+                    </ul>
+                  </a>
+                ))}
+              </div>
+            </div>
+          </section>
+        </div>
       </div>
     </div>
-
-    <aside class="right-rail">
-      <div class="rail-panel">
-        <p class="rail-kicker">Tags</p>
-        <h2>Index</h2>
-        <ul class="tag-list">
-          {tags.slice(0, 14).map((tag) => (
-            <li><a href={withBase(`/tags/${tagSlug(tag)}/`)}>{tag}</a></li>
-          ))}
-        </ul>
-      </div>
-
-      <div class="rail-panel">
-        <p class="rail-kicker">Positioning</p>
-        <h2>Graphics AI Engineer</h2>
-        <p style="margin-top: 10px;">
-          범용 AI 서비스보다 graphics를 더 사실적으로 만들고 rendering pipeline을 확장하는 AI 활용에 관심이 있습니다.
-        </p>
-      </div>
-    </aside>
   </section>
 </BaseLayout>

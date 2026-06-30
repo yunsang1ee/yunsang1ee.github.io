@@ -9,6 +9,8 @@ astro-dev.err
 visual-editor.log
 visual-editor.err
 .dev*.log
+.dev*.err
 Behind the Frame design.html
 Behind the Frame design_files/
 profile/
+.tmp-edge-profile/

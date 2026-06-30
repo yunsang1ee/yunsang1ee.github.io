@@ -1,7 +1,7 @@
 ---
 import PostCard from "../../components/PostCard.astro";
 import BaseLayout from "../../layouts/BaseLayout.astro";
-import { getAllTags, getPublishedPosts, tagSlug } from "../../lib/content";
+import { getAllTags, getPublishedPosts, tagSlug, withBase } from "../../lib/content";
 
 export async function getStaticPaths() {
   const posts = await getPublishedPosts();
@@ -24,6 +24,10 @@ const { tag, posts } = Astro.props;
     <p class="eyebrow">Tag</p>
     <h1>{tag}</h1>
     <p>{tag}와 연결된 글을 모았습니다.</p>
+    <nav class="index-switch" aria-label="Topic index">
+      <a href={withBase("/categories/")}>Categories</a>
+      <a href={withBase("/tags/")} aria-current="page">Tags</a>
+    </nav>
   </section>
 
   <section class="shell listing-shell">
