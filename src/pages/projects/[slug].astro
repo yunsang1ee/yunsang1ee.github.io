@@ -1,0 +1,80 @@
+---
+import { render } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { getAllProjects, projectHref, withBase, type ProjectEntry } from "../../lib/content";
+
+export async function getStaticPaths() {
+  const projects = await getAllProjects();
+
+  return projects.map((project) => ({
+    params: { slug: project.id },
+    props: { project }
+  }));
+}
+
+const { project } = Astro.props as { project: ProjectEntry };
+const { Content } = await render(project);
+const { data } = project;
+---
+
+<BaseLayout title={data.title} description={data.description}>
+  <section class="shell page-head">
+    <p class="crumbs">
+      <a href={withBase("/projects/")}>Projects</a>
+      {" / "}
+      <a href={withBase(projectHref(project))}>{data.title}</a>
+    </p>
+  </section>
+
+  <article class="shell post-shell">
+    <aside class="toc-rail">
+      <div class="rail-panel">
+        <p class="rail-kicker">Project</p>
+        <h2>{data.status}</h2>
+        <ul class="rail-list">
+          <li><span>Period<strong>{data.period}</strong></span></li>
+          {data.teamSize && <li><span>Team<strong>{data.teamSize}</strong></span></li>}
+        </ul>
+      </div>
+    </aside>
+
+    <div class="prose-card">
+      <header class="prose-header">
+        <p class="eyebrow">{data.period}</p>
+        <h1>{data.title}</h1>
+        <p>{data.description}</p>
+        <ul class="tag-list">
+          {data.stack.map((item) => <li>{item}</li>)}
+        </ul>
+        {data.links.length > 0 && (
+          <div class="link-row">
+            {data.links.map((link) => (
+              <a href={link.href} target="_blank" rel="noreferrer">{link.label}</a>
+            ))}
+          </div>
+        )}
+      </header>
+      <div class="prose">
+        <Content />
+      </div>
+    </div>
+
+    <aside class="right-rail">
+      <div class="rail-panel">
+        <p class="rail-kicker">Role</p>
+        <h2>Contribution</h2>
+        <p style="margin-top: 10px;">{data.role}</p>
+      </div>
+
+      {data.highlights.length > 0 && (
+        <div class="rail-panel">
+          <p class="rail-kicker">Highlights</p>
+          <h2>Focus</h2>
+          <ul class="rail-list">
+            {data.highlights.map((highlight) => <li><span>{highlight}</span></li>)}
+          </ul>
+        </div>
+      )}
+    </aside>
+  </article>
+</BaseLayout>

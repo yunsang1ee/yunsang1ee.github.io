@@ -1,0 +1,73 @@
+---
+import PostCard from "../../components/PostCard.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { categories } from "../../data/site";
+import { getAllTags, getCategoryCounts, getPublishedPosts, tagSlug, withBase } from "../../lib/content";
+
+const posts = await getPublishedPosts();
+const categoryCounts = getCategoryCounts(posts);
+const tags = getAllTags(posts);
+const years = [...new Set(posts.map((post) => post.data.pubDate.getFullYear()))].sort((a, b) => b - a);
+---
+
+<BaseLayout title="Blog" description="Behind the Frame blog archive">
+  <section class="shell page-head">
+    <p class="eyebrow">Blog</p>
+    <h1>Technical Notes</h1>
+    <p>
+      graphics, engine architecture, AI for Graphics, CS fundamentals를 장기적으로 축적하는 archive입니다.
+      글은 Markdown으로 작성하고, category / tag / series metadata로 정리합니다.
+    </p>
+  </section>
+
+  <section class="shell listing-shell">
+    <aside class="left-rail">
+      <div class="rail-panel">
+        <p class="rail-kicker">Categories</p>
+        <h2>Browse</h2>
+        <ul class="rail-list">
+          {categories.map((category) => (
+            <li>
+              <a href={withBase(`/categories/${category.slug}/`)}>
+                <span>{category.title}</span>
+                <strong>{categoryCounts[category.slug] ?? 0}</strong>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="rail-panel">
+        <p class="rail-kicker">Archive</p>
+        <h2>Years</h2>
+        <ul class="rail-list">
+          {years.map((year) => (
+            <li><span>{year}<strong>{posts.filter((post) => post.data.pubDate.getFullYear() === year).length}</strong></span></li>
+          ))}
+        </ul>
+      </div>
+
+      <div class="rail-panel">
+        <p class="rail-kicker">Tags</p>
+        <h2>Index</h2>
+        <ul class="tag-list">
+          {tags.map((tag) => (
+            <li><a href={withBase(`/tags/${tagSlug(tag)}/`)}>{tag}</a></li>
+          ))}
+        </ul>
+      </div>
+    </aside>
+
+    <div class="section-block">
+      <div class="section-block__head">
+        <div>
+          <p class="eyebrow">All Posts</p>
+          <h2>{posts.length} posts</h2>
+        </div>
+      </div>
+      <div class="content-grid">
+        {posts.map((post) => <PostCard post={post} />)}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

@@ -1,0 +1,52 @@
+---
+import PostCard from "../../components/PostCard.astro";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { categories } from "../../data/site";
+import { getPublishedPosts } from "../../lib/content";
+
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts();
+
+  return categories.map((category) => ({
+    params: { slug: category.slug },
+    props: {
+      category,
+      posts: posts.filter((post) => post.data.category === category.slug)
+    }
+  }));
+}
+
+const { category, posts } = Astro.props;
+---
+
+<BaseLayout title={category.title} description={category.summary}>
+  <section class="shell page-head">
+    <p class="eyebrow">Category</p>
+    <h1>{category.title}</h1>
+    <p>{category.summary}</p>
+  </section>
+
+  <section class="shell listing-shell">
+    <aside class="left-rail">
+      <div class="rail-panel">
+        <p class="rail-kicker">Topics</p>
+        <h2>Scope</h2>
+        <ul class="tag-list">
+          {category.topics.map((topic) => <li>{topic}</li>)}
+        </ul>
+      </div>
+    </aside>
+
+    <div class="section-block">
+      <div class="section-block__head">
+        <div>
+          <p class="eyebrow">Posts</p>
+          <h2>{posts.length} notes</h2>
+        </div>
+      </div>
+      <div class="content-grid">
+        {posts.length > 0 ? posts.map((post) => <PostCard post={post} />) : <p>이 category의 글은 아직 준비 중입니다.</p>}
+      </div>
+    </div>
+  </section>
+</BaseLayout>

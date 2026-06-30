@@ -1,0 +1,34 @@
+---
+import ProjectCard from "../components/ProjectCard.astro";
+import BaseLayout from "../layouts/BaseLayout.astro";
+import { getAllProjects } from "../lib/content";
+
+const projects = await getAllProjects();
+const stacks = [...new Set(projects.flatMap((project) => project.data.stack))].sort((a, b) => a.localeCompare(b));
+---
+
+<BaseLayout title="Projects" description="Behind the Frame project archive">
+  <section class="shell page-head">
+    <p class="eyebrow">Projects</p>
+    <h1>Selected Work</h1>
+    <p>
+      결과물만 나열하기보다 어떤 구조를 선택했고, 어떤 제약에서 구현했으며, 무엇을 배웠는지를 프로젝트 단위로 정리합니다.
+    </p>
+  </section>
+
+  <section class="shell project-shell">
+    <aside class="left-rail">
+      <div class="rail-panel">
+        <p class="rail-kicker">Stack</p>
+        <h2>Tools</h2>
+        <ul class="tag-list">
+          {stacks.slice(0, 24).map((stack) => <li>{stack}</li>)}
+        </ul>
+      </div>
+    </aside>
+
+    <div class="project-grid">
+      {projects.map((project) => <ProjectCard project={project} />)}
+    </div>
+  </section>
+</BaseLayout>

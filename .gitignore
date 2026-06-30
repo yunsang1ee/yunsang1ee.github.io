@@ -1,0 +1,14 @@
+node_modules/
+dist/
+.astro/
+.env
+.env.local
+npm-debug.log*
+astro-dev.log
+astro-dev.err
+visual-editor.log
+visual-editor.err
+.dev*.log
+Behind the Frame design.html
+Behind the Frame design_files/
+profile/

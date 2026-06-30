@@ -1,0 +1,107 @@
+---
+import { render } from "astro:content";
+import BaseLayout from "../../layouts/BaseLayout.astro";
+import { categoryBySlug } from "../../data/site";
+import {
+  formatDate,
+  getPublishedPosts,
+  getRelatedPosts,
+  postHref,
+  tagSlug,
+  withBase,
+  type PostEntry
+} from "../../lib/content";
+
+export async function getStaticPaths() {
+  const posts = await getPublishedPosts();
+
+  return posts.map((post) => ({
+    params: { slug: post.id },
+    props: { post }
+  }));
+}
+
+const { post } = Astro.props as { post: PostEntry };
+const { Content, headings } = await render(post);
+const posts = await getPublishedPosts();
+const relatedPosts = getRelatedPosts(post, posts);
+const category = categoryBySlug[post.data.category as keyof typeof categoryBySlug];
+const seriesPosts = post.data.series
+  ? posts
+      .filter((candidate) => candidate.data.series?.slug === post.data.series?.slug)
+      .sort((a, b) => (a.data.series?.order ?? 999) - (b.data.series?.order ?? 999))
+  : [];
+---
+
+<BaseLayout title={post.data.title} description={post.data.description}>
+  <section class="shell page-head">
+    <p class="crumbs">
+      <a href={withBase("/blog/")}>Blog</a>
+      {" / "}
+      <a href={withBase(`/categories/${post.data.category}/`)}>{category?.title ?? post.data.category}</a>
+    </p>
+  </section>
+
+  <article class="shell post-shell">
+    <aside class="toc-rail">
+      <div class="rail-panel">
+        <p class="rail-kicker">On This Page</p>
+        <h2>Contents</h2>
+        <ul class="toc-list">
+          {headings.filter((heading) => heading.depth <= 3).map((heading) => (
+            <li><a href={`#${heading.slug}`}>{heading.text}</a></li>
+          ))}
+        </ul>
+      </div>
+    </aside>
+
+    <div class="prose-card">
+      <header class="prose-header">
+        <p class="eyebrow">{formatDate(post.data.pubDate)} / {post.data.type}</p>
+        <h1>{post.data.title}</h1>
+        <p>{post.data.description}</p>
+        {post.data.tags.length > 0 && (
+          <ul class="tag-list">
+            {post.data.tags.map((tag) => (
+              <li><a href={withBase(`/tags/${tagSlug(tag)}/`)}>{tag}</a></li>
+            ))}
+          </ul>
+        )}
+      </header>
+      <div class="prose">
+        <Content />
+      </div>
+    </div>
+
+    <aside class="right-rail">
+      {post.data.series && (
+        <div class="rail-panel">
+          <p class="rail-kicker">Series</p>
+          <h2>{post.data.series.title}</h2>
+          <ul class="rail-list">
+            {seriesPosts.map((seriesPost) => (
+              <li>
+                <a href={withBase(postHref(seriesPost))}>
+                  <span>{seriesPost.data.title}</span>
+                  <strong>{seriesPost.data.series?.order ?? ""}</strong>
+                </a>
+              </li>
+            ))}
+          </ul>
+        </div>
+      )}
+
+      {relatedPosts.length > 0 && (
+        <div class="rail-panel">
+          <p class="rail-kicker">Related</p>
+          <h2>Next Notes</h2>
+          <ul class="rail-list">
+            {relatedPosts.map((relatedPost) => (
+              <li><a href={withBase(postHref(relatedPost))}><span>{relatedPost.data.title}</span></a></li>
+            ))}
+          </ul>
+        </div>
+      )}
+    </aside>
+  </article>
+</BaseLayout>
