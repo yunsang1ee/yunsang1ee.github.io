@@ -28,7 +28,7 @@ const normalizedEndpoint = endpoint.replace(/\/+$/, "");
       <dd data-visitor-stat="total">--</dd>
     </div>
   </dl>
-  <p class="visitor-stats__status" data-visitor-status>집계 연결 중</p>
+  <p class="visitor-stats__status" data-visitor-status></p>
 </section>
 
 <script is:inline>
@@ -62,7 +62,7 @@ const normalizedEndpoint = endpoint.replace(/\/+$/, "");
         const value = Number(stats?.[key]);
         if (field) field.textContent = Number.isFinite(value) ? formatter.format(value) : "--";
       }
-      setStatus("일 단위 고유 방문");
+      setStatus("");
       root.hidden = false;
     };
 
