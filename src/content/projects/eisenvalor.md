@@ -18,9 +18,11 @@ tags:
   - "DXR"
   - "Real-Time Path Tracing"
   - "Engine Architecture"
-status: "private"
+status: "public"
 featured: true
-links: []
+links:
+  - label: "GitHub"
+    href: "https://github.com/yunsang1ee/EisenValor"
 highlights:
   - "real-time path tracing을 위한 game client framework 구조 설계"
   - "DXR 기반 renderer와 game runtime 통합"
@@ -31,4 +33,4 @@ highlights:
 
 이 프로젝트에서 맡은 역할은 팀장, client framework, graphics 전반입니다. animation과 UI 일부를 제외한 rendering 구조와 runtime 통합을 중심으로 작업했습니다.
 
-private repository이므로 핵심 코드와 민감한 구현 세부는 공개하지 않습니다. 대신 공개 가능한 범위에서 renderer 구조, framework 설계 판단, PIX debugging, DXR optimization, ReSTIR PT 적용 과정 등을 기록할 예정입니다.
+repository는 public으로 전환했습니다. 블로그에서는 renderer 구조, framework 설계 판단, PIX debugging, DXR optimization, ReSTIR PT 적용 과정 등을 공개 가능한 범위에서 기록할 예정입니다.
