@@ -1,0 +1,13 @@
+name = "behind-the-frame-counter"
+main = "worker.js"
+compatibility_date = "2026-07-02"
+workers_dev = true
+preview_urls = false
+
+[vars]
+ALLOWED_ORIGIN = "https://yunsang1ee.github.io"
+
+[[d1_databases]]
+binding = "DB"
+database_name = "behind-the-frame-counter"
+database_id = "<D1_DATABASE_ID>"

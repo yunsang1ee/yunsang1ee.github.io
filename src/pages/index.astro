@@ -26,7 +26,27 @@ const projectStacks = [...new Set(featuredProjects.flatMap((project) => project.
     <div class="home-hero__copy">
       <div>
         <p class="eyebrow">{site.authorEn} / {site.authorKo}</p>
-        <h1>{site.title}</h1>
+        <h1 class="sr-only">{site.title}</h1>
+        <div class="home-logo-lockup" aria-hidden="true">
+          <img
+            class="home-logo-image home-logo-image--light"
+            src={withBase("/images/brand/logo-light.png")}
+            alt=""
+            width="992"
+            height="356"
+            loading="eager"
+            decoding="async"
+          />
+          <img
+            class="home-logo-image home-logo-image--dark"
+            src={withBase("/images/brand/logo.png")}
+            alt=""
+            width="992"
+            height="356"
+            loading="eager"
+            decoding="async"
+          />
+        </div>
       </div>
       <p>
         Real-Time & Photorealistic Graphics를 중심으로 rendering pipeline, engine architecture, GPU work,

@@ -1,0 +1,95 @@
+---
+interface Props {
+  endpoint?: string;
+}
+
+const { endpoint = import.meta.env.PUBLIC_VISITOR_COUNTER_ENDPOINT ?? "" } = Astro.props;
+const normalizedEndpoint = endpoint.replace(/\/+$/, "");
+---
+
+<section
+  class="visitor-stats"
+  data-visitor-stats
+  data-endpoint={normalizedEndpoint}
+  aria-label="Visitor statistics"
+>
+  <p class="visitor-stats__kicker">방문수</p>
+  <dl class="visitor-stats__grid">
+    <div>
+      <dt>오늘</dt>
+      <dd data-visitor-stat="today">--</dd>
+    </div>
+    <div>
+      <dt>이번 주</dt>
+      <dd data-visitor-stat="week">--</dd>
+    </div>
+    <div>
+      <dt>누적</dt>
+      <dd data-visitor-stat="total">--</dd>
+    </div>
+  </dl>
+  <p class="visitor-stats__status" data-visitor-status>집계 연결 중</p>
+</section>
+
+<script is:inline>
+  (() => {
+    const root = document.querySelector("[data-visitor-stats]");
+    if (!(root instanceof HTMLElement)) return;
+
+    const endpoint = root.dataset.endpoint?.replace(/\/+$/, "");
+    if (!endpoint) {
+      root.hidden = false;
+      const status = root.querySelector("[data-visitor-status]");
+      if (status) status.textContent = "집계 API 미연결";
+      return;
+    }
+
+    const formatter = new Intl.NumberFormat("ko-KR");
+    const status = root.querySelector("[data-visitor-status]");
+    const fields = {
+      today: root.querySelector('[data-visitor-stat="today"]'),
+      week: root.querySelector('[data-visitor-stat="week"]'),
+      total: root.querySelector('[data-visitor-stat="total"]')
+    };
+
+    const setStatus = (message) => {
+      if (status) status.textContent = message;
+    };
+
+    const render = (stats) => {
+      for (const key of ["today", "week", "total"]) {
+        const field = fields[key];
+        const value = Number(stats?.[key]);
+        if (field) field.textContent = Number.isFinite(value) ? formatter.format(value) : "--";
+      }
+      setStatus("일 단위 고유 방문");
+      root.hidden = false;
+    };
+
+    const fetchStats = async () => {
+      const payload = {
+        path: window.location.pathname
+      };
+
+      const hitResponse = await fetch(`${endpoint}/hit`, {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify(payload),
+        keepalive: true
+      });
+
+      if (hitResponse.ok) return hitResponse.json();
+
+      const statsResponse = await fetch(`${endpoint}/stats`, { headers: { accept: "application/json" } });
+      if (!statsResponse.ok) throw new Error("Visitor stats request failed");
+      return statsResponse.json();
+    };
+
+    fetchStats()
+      .then(render)
+      .catch(() => {
+        root.hidden = false;
+        setStatus("집계 연결 실패");
+      });
+  })();
+</script>

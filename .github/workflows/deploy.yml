@@ -35,6 +35,8 @@ jobs:
 
       - name: Build
         run: npm run build
+        env:
+          PUBLIC_VISITOR_COUNTER_ENDPOINT: https://behind-the-frame-counter.yunsang1ee.workers.dev
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
