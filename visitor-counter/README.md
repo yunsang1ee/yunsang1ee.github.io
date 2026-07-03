@@ -87,3 +87,16 @@ curl -X POST https://behind-the-frame-counter.<your-subdomain>.workers.dev/hit \
   -H "content-type: application/json" \
   -d "{\"path\":\"/\"}"
 ```
+
+To check the site without increasing the counter, open the blog with `?no_count=1`.
+This stores a session-only test mode in the browser tab, so later navigation in the same
+tab only reads `/stats`. Use `?no_count=0` to return that tab to normal counting.
+
+For API testing without increasing the counter:
+
+```bash
+curl -X POST https://behind-the-frame-counter.<your-subdomain>.workers.dev/hit \
+  -H "origin: https://yunsang1ee.github.io" \
+  -H "content-type: application/json" \
+  -d "{\"path\":\"/\",\"count\":false}"
+```

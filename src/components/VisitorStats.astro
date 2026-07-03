@@ -66,7 +66,42 @@ const normalizedEndpoint = endpoint.replace(/\/+$/, "");
       root.hidden = false;
     };
 
+    const noCountSessionKey = "behind-the-frame:no-count";
+
+    const shouldSkipCount = () => {
+      const params = new URLSearchParams(window.location.search);
+      const noCountParam = params.get("no_count");
+
+      if (noCountParam === "1" || noCountParam === "true") {
+        try {
+          sessionStorage.setItem(noCountSessionKey, "1");
+        } catch {}
+        return true;
+      }
+
+      if (noCountParam === "0" || noCountParam === "false") {
+        try {
+          sessionStorage.removeItem(noCountSessionKey);
+        } catch {}
+        return false;
+      }
+
+      try {
+        return sessionStorage.getItem(noCountSessionKey) === "1";
+      } catch {
+        return false;
+      }
+    };
+
+    const requestStats = async () => {
+      const statsResponse = await fetch(`${endpoint}/stats`, { headers: { accept: "application/json" } });
+      if (!statsResponse.ok) throw new Error("Visitor stats request failed");
+      return statsResponse.json();
+    };
+
     const fetchStats = async () => {
+      if (shouldSkipCount()) return requestStats();
+
       const payload = {
         path: window.location.pathname
       };
@@ -80,9 +115,7 @@ const normalizedEndpoint = endpoint.replace(/\/+$/, "");
 
       if (hitResponse.ok) return hitResponse.json();
 
-      const statsResponse = await fetch(`${endpoint}/stats`, { headers: { accept: "application/json" } });
-      if (!statsResponse.ok) throw new Error("Visitor stats request failed");
-      return statsResponse.json();
+      return requestStats();
     };
 
     fetchStats()

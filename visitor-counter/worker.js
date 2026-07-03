@@ -115,8 +115,9 @@ const getStats = async (db) => {
   };
 };
 
-const recordVisit = async (request, env) => {
-  const body = await readJson(request);
+const shouldSkipCount = (body) => body?.count === false || body?.noCount === true;
+
+const recordVisit = async (request, env, body) => {
   const userAgent = (request.headers.get("user-agent") ?? "").slice(0, 300);
   const ip =
     request.headers.get("cf-connecting-ip") ??
@@ -178,7 +179,12 @@ export default {
         return json({ error: "payload_too_large" }, { status: 413, headers });
       }
 
-      return json(await recordVisit(request, env), { headers });
+      const body = await readJson(request);
+      if (shouldSkipCount(body)) {
+        return json(await getStats(env.DB), { headers });
+      }
+
+      return json(await recordVisit(request, env, body), { headers });
     }
 
     return json({ error: "not_found" }, { status: 404, headers });
